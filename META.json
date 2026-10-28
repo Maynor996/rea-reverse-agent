@@ -1,0 +1,9 @@
+{
+  "slug": "rea-reverse-agent",
+  "title": "半年 30 万 Star！ReA 让 AI Agent 学会逆向：从 App 行为一路挖到二进制",
+  "csdn": "https://blog.csdn.net/xianyu120/article/details/168319268",
+  "pages": "https://maynor996.github.io/rea-reverse-agent/",
+  "source": "local",
+  "imgs": 5,
+  "workdir": "/workspace/csdn-mirror/build/rea-reverse-agent"
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>半年 30 万 Star！ReA 让 AI Agent 学会逆向：从 App 行为一路挖到二进制</title>
+<meta name="description" content=" 数据截至 2026-10-18（北京时间）：GitHub 上 morluto/rea 约 30.75 万 Star、7.78 万 Fork，仓库 2026 年 4 月 14 日才创建，最新版本 rea-agents v6.5.0（2026-10-13）。 一、ReA 是什么？ 一句话：ReA（官方写作 REA，Rev">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--card:#fff;--text:#1a1a1a;--muted:#5c5c5c;--accent:#1a73e8;--border:#e6e2d8;--code-bg:#f0eee8}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+article{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem 1.75rem 2.5rem;box-shadow:0 8px 30px rgba(0,0,0,.04)}
+h1{font-family:"Noto Serif SC",serif;font-size:clamp(1.55rem,4vw,2rem);line-height:1.4;margin:0 0 1.25rem;font-weight:700}
+h2{font-family:"Noto Serif SC",serif;font-size:1.35rem;margin:2.25rem 0 .9rem;padding-top:.5rem;border-top:1px solid var(--border);font-weight:700}
+h2:first-of-type{border-top:none;padding-top:0}h3{font-size:1.1rem;margin:1.5rem 0 .6rem}
+p{margin:.9rem 0}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+ul,ol{padding-left:1.35rem;margin:.8rem 0}li{margin:.35rem 0}strong{font-weight:700}
+img{display:block;max-width:100%;height:auto;margin:1.1rem auto .35rem;border-radius:10px;border:1px solid var(--border);background:#fafafa}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;overflow-x:auto;font-size:.88rem;line-height:1.55}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background:var(--code-bg);padding:.1em .35em;border-radius:4px}
+pre code{background:none;padding:0}
+blockquote{margin:1rem 0;padding:.2rem 0 .2rem 1rem;border-left:3px solid var(--accent);color:var(--muted)}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem}
+th,td{border:1px solid var(--border);padding:.55rem .7rem;text-align:left;vertical-align:top}th{background:#f3f1eb}
+.meta{color:var(--muted);font-size:.92rem;margin-bottom:1.5rem}
+.pages-banner{margin:0 0 1.25rem;padding:.75rem 1rem;background:#eef5ff;border:1px solid #d0e2ff;border-radius:10px;font-size:.95rem}
+footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);color:var(--muted);font-size:.88rem}
+</style></head><body><div class="wrap"><article>
+<div class="pages-banner">在线阅读（GitHub Pages）：<a href="https://maynor996.github.io/rea-reverse-agent/">https://maynor996.github.io/rea-reverse-agent/</a></div>
+<h1>半年 30 万 Star！ReA 让 AI Agent 学会逆向：从 App 行为一路挖到二进制</h1>
+<div class="meta">原文：<a href="https://blog.csdn.net/xianyu120/article/details/168319268">https://blog.csdn.net/xianyu120/article/details/168319268</a></div>
+<blockquote>
+<p>数据截至 2026-10-18（北京时间）：GitHub 上 morluto/rea 约 30.75 万 Star、7.78 万 Fork，仓库 2026 年 4 月 14 日才创建，最新版本 rea-agents v6.5.0（2026-10-13）。</p>
+</blockquote>
+<!-- 图片上传失败，暂用本地路径，发布前需替换 -->
+<p><img alt="ReA 仓库主页截图" src="imgs/01.png" /></p>
+<h2>一、ReA 是什么？</h2>
+<p>一句话：<strong>ReA（官方写作 REA，Reverse Engineer Anything）是一个给 AI Agent 用的逆向工程 MCP 服务器</strong>，顺带也能当命令行工具用。</p>
+<p>README 的定位很直白：“One MCP for reverse engineering across binaries, applications, and runtime behavior.” 你在别人的 App 里看到一个好用的功能，想知道它怎么实现的，就让 Claude Code、Codex、Cursor 这类 Agent 调用 REA 去“拆”这个 App：不需要源码，它会给出伪代码、汇编、模块关系等<strong>证据</strong>，Agent 再据此解释原理，甚至帮你在自己项目里实现一个类似的。</p>
+<p>项目基础信息：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>仓库</td>
+<td>github.com/morluto/rea</td>
+</tr>
+<tr>
+<td>语言</td>
+<td>TypeScript（桥接部分有 Java / Python / Swift）</td>
+</tr>
+<tr>
+<td>协议</td>
+<td>MIT（第三方组件各自保留许可）</td>
+</tr>
+<tr>
+<td>npm 包</td>
+<td>rea-agents，命令 <code>rea</code></td>
+</tr>
+<tr>
+<td>Node 要求</td>
+<td>22.x（≥22.19）、24.x（≥24.11）或 26+</td>
+</tr>
+</tbody>
+</table>
+<h2>二、为什么这么火？</h2>
+<p>我觉得有三点：</p>
+<ol>
+<li><strong>踩中了 “Agent + MCP” 的风口</strong>。过去逆向是 IDA / Ghidra 老师傅的手艺活，现在 Agent 会写代码了，缺的是“眼睛”。REA 把一堆专业逆向工具包装成 Agent 能调用的工具，等于给 Agent 装上了逆向能力。</li>
+<li><strong>覆盖面离谱地广</strong>。不只是原生二进制，JS/Electron 应用、.NET 程序集、Android APK、网站、固件、WASM、EVM 字节码、SQLite、抓包文件、Linux 崩溃转储……README 里的支持表有二十多行。</li>
+<li><strong>迭代极快、工程量扎实</strong>。光 10 月 9 日到 14 日就发了 v6.1 到 v6.5 五个版本；仓库截图里能看到 3600+ 次提交、139 个分支；<code>.github/workflows</code> 下有几十条 <code>real-*</code> 开头的真实工具验证流水线（真 Ghidra、真 Hopper、真浏览器等）。截至今天 issue 区仍在不停有人提 Bug，社区相当活跃。</li>
+</ol>
+<h2>三、它解决什么问题？</h2>
+<p>传统做法：开 Ghidra → 找函数 → 看伪代码 → 手动重命名 → 自己总结。大模型能帮忙，但你得把一大坨反编译结果复制给它，它还容易“编故事”。</p>
+<p>REA 的思路是让 Agent <strong>自己去调工具、自己追调用链</strong>，而且每个结论都附带证据和“未知项”。README 原话：results include the evidence and limitations behind each conclusion。架构里专门有 <code>EvidenceLedger</code>（证据账本）和 <code>Unknown</code> 的概念——这对抑制模型幻觉很关键：说不清的地方明确标为未知，而不是瞎猜。</p>
+<p>另外，<strong>分析在本地跑</strong>。FAQ 里说得很清楚：REA 本地分析目标，Agent 只拿到工具结果；但你用的模型服务商怎么处理这些结果，要看它自己的数据政策。</p>
+<h2>四、工作流程</h2>
+<p><img alt="REA 调查流程：Agent 提问 → REA 检查与追踪 → 返回代码、引用与未知项 → Agent 解释、实现与测试" src="imgs/02.png" /></p>
+<p>上图来自官方 README，流程是：</p>
+<ol>
+<li>你向 Agent 提问（比如“Notes 里的搜索是怎么做的”）；</li>
+<li>Agent 通过 MCP 调用 REA，检查目标、追踪相关代码；</li>
+<li>REA 返回代码、引用关系和未知项；</li>
+<li>Agent 基于证据继续追问、解释，或者写代码并测试。</li>
+</ol>
+<p>CLI 命令走的是同一套工作流，所以脚本化也很方便。</p>
+<h2>五、架构拆解</h2>
+<p>我按仓库里的 <code>docs/architecture.mermaid</code> 重画了一张简化图：</p>
+<p><img alt="REA 分层架构图" src="imgs/03.png" /></p>
+<p>从上到下几层：</p>
+<ul>
+<li><strong>入口层</strong>：<code>scripts/rea.mjs</code> 是可执行分发器，把请求路由到 <code>src/main.ts</code>（MCP stdio 服务）或 <code>src/cli.ts</code>（一次性 CLI）。<code>package.json</code> 里 <code>rea</code> 和 <code>rea-agents</code> 两个命令都指向它。</li>
+<li><strong>组装 / 适配层</strong>：<code>src/composition</code> 负责创建各类 Provider 与会话工厂；<code>src/server</code> 负责 MCP 工具注册和请求翻译。</li>
+<li><strong>应用层</strong>：<code>src/application</code> 是 CLI 与 MCP 共用的工作流。其中 <code>SessionProviderRouter + BinarySession</code> 实现“每个目标一个不可变的深度分析绑定”；<code>AnalysisProviderRegistry</code> 的注释写着“deterministic selection, no fallback”——选哪个反编译后端是确定的，不会悄悄换一个，这样结果可复现。</li>
+<li><strong>Provider 层</strong>：Hopper、Ghidra、IDA 是原生分析的“深度后端”；另外还有浏览器（CDP/Playwright）、V8 Inspector、.NET、Android（JADX）、固件（Binwalk/Unblob）、GDB、Rizin、objdump、WASM、EVM 等一大堆。IDA 部分是对外部 <code>ida-pro-mcp</code> 的契约适配。</li>
+<li><strong>底座</strong>：<code>src/process</code> 管进程组、超时和清理；<code>src/contracts</code> 定义调用方可见的结果 schema；<code>src/domain</code> 是无副作用的纯函数模块（证据、比较、应用图）。</li>
+</ul>
+<h2>六、关键代码走读</h2>
+<p><strong>1. 桥接脚本：在逆向工具“内部”干活</strong></p>
+<p><code>bridge/</code> 目录是 REA 和各大工具的连接点：</p>
+<ul>
+<li><code>bridge/hopper_bridge.py</code>：跑在 Hopper 内部，把操作适配到 Hopper 的 Python API；外层 <code>src/hopper/</code> 通过 Unix socket 协议和它通信。</li>
+<li><code>bridge/ghidra/ReaGhidraBridge.java</code>：打包成 Ghidra HeadlessScript，提供函数清单、反编译、引用、CFG。同目录还有 MIPS、DOS 等专项处理脚本。</li>
+<li><code>bridge/android/ReaJadxBridge.java</code>、<code>bridge/cutter/rea_bridge.py</code>、<code>bridge/pwndbg/</code>、<code>bridge/mitmproxy/capture.py</code> 等分别对接 JADX、Cutter、pwndbg、mitmproxy。</li>
+</ul>
+<p>这种“插件跑在宿主工具里 + 外部 TypeScript 进程管理生命周期”的设计，好处是能直接用这些工具成熟的分析能力，而不是自己造一个反编译器。</p>
+<p><strong>2. 会话与证据</strong></p>
+<p><code>src/application/investigation/</code> 负责组合 <code>InvestigationRecords</code>，把证据账本和未知项的归属管起来；<code>AnalysisSnapshotCache</code> 做二进制目标的快照缓存。v6.5.0 的更新日志也提到可以“分页读取已保存的证据，无需重跑分析”，以及“分析或清理失败时，已完成的证据和部分观测依然保留”。</p>
+<p><strong>3. Agent Skill</strong></p>
+<p>仓库 <code>.agents/skills/reverse-engineer-anything/</code> 下是给 Agent 的调查指引，按 Android、JS 应用、原生产物、运行时观测等拆成多份参考文档。<code>setup</code> 时会把 MCP 注册和这套指引一起装进你的 Agent。</p>
+<h2>七、快速上手</h2>
+<p>以下命令都来自官方 README。</p>
+<p><strong>1）给 Agent 安装（推荐）</strong></p>
+<pre><code class="language-bash">npx rea-agents setup
+</code></pre>
+<p>选择你的 Agent，确认改动（会备份原配置），然后重启 Agent。支持 Claude Code、Codex、Cursor、Gemini CLI、Grok Build 等。</p>
+<p><strong>2）直接对 Agent 说</strong></p>
+<pre><code class="language-text">Understand how search works in the Notes app, show me the evidence, and build a
+similar feature for my project.
+</code></pre>
+<p>把 Notes 换成你的目标 App 和功能即可。</p>
+<p><strong>3）终端分析 JS/Electron 应用</strong></p>
+<pre><code class="language-bash">npx -y rea-agents@latest analyze-javascript-application /absolute/path/to/app --json
+</code></pre>
+<p>输出包括模块、导入关系、Electron 边界及其证据。</p>
+<p><strong>4）全局安装与更新</strong></p>
+<pre><code class="language-bash">npm install --global rea-agents
+rea --help
+rea update
+</code></pre>
+<p>注意几点：</p>
+<ul>
+<li>原生二进制深度分析需要 Hopper、Ghidra 或 IDA 之一；静态 JS 和 .NET 分析不需要。</li>
+<li>Linux 上跑 Ghidra、JADX、固件工具和静态 JS/Electron 分析，需要 PATH 里有 procps 兼容的 <code>ps</code>。</li>
+<li>大型二进制可通过 <code>REA_GHIDRA_STARTUP_TIMEOUT_MS</code> / <code>REA_HOPPER_STARTUP_TIMEOUT_MS</code> 调大启动超时。</li>
+</ul>
+<p><img alt="REA 在 Hopper 内启动分析桥接、检查原生二进制" src="imgs/04.png" /></p>
+<h2>八、官方案例</h2>
+<p><img alt="官方 Showcase：DX-Ball、Notion、TH04" src="imgs/05.png" /></p>
+<ul>
+<li><strong>DX-Ball</strong>：追一个声音调用到“位置→声像”辅助函数，把不完整的伪代码还原成 C。README 写道：重建版本通过了 3,205 个原始 x86 用例，并复现了全部 63 个编译后的函数字节。</li>
+<li><strong>Notion</strong>：从渲染进程的剪贴板 API，经 preload 和 IPC 一路追到主进程，查看富文本剪贴板格式。</li>
+<li><strong>TH04（东方幻想乡，PC-98）</strong>：分析 16 位指令，还原固定/瞄准弹幕环的角度计算，并和历史编译器输出对比。</li>
+</ul>
+<h2>九、和同类项目比</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>REA</th>
+<th>单工具 MCP（如 ida-pro-mcp）</th>
+<th>直接用 Ghidra / IDA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>覆盖范围</td>
+<td>原生、JS/Electron、.NET、Android、网站、固件等</td>
+<td>主要围绕单个工具</td>
+<td>原生二进制为主</td>
+</tr>
+<tr>
+<td>后端</td>
+<td>可选 Hopper / Ghidra / IDA 等</td>
+<td>绑定一个</td>
+<td>自身</td>
+</tr>
+<tr>
+<td>面向 Agent</td>
+<td>是，带 Skill 与证据/未知项契约</td>
+<td>是</td>
+<td>否，需人工操作</td>
+</tr>
+</tbody>
+</table>
+<p>需要说明：REA 的 IDA 支持本身就是适配上游 <code>ida-pro-mcp</code>，二者是组合关系而非替代。表里只列了结构性差异，没有性能对比——我没找到可信的横向基准数据。</p>
+<h2>十、局限与注意</h2>
+<ul>
+<li><strong>依赖外部工具</strong>：深度原生分析离不开 Hopper/Ghidra/IDA；商业工具（IDA Pro、Hopper、JEB）必须合法授权，README 明确反对破解版和共享密钥。</li>
+<li><strong>平台差异大</strong>：很多能力标注了“仅 Linux x64 验证”或需要特定版本工具，Windows 下 Ghidra 支持还是实验性的。</li>
+<li><strong>变化快</strong>：官方自己都说“REA changes quickly”，遇到问题先 <code>rea update</code>。这也意味着文档和行为可能随版本变化。</li>
+<li><strong>合规红线</strong>：DISCLAIMER 明确不支持绕过 DRM / 授权校验 / 反作弊、开发外挂、复制专有代码等用途。逆向在不同司法辖区和软件许可下可能受限，务必只分析自己拥有或获授权的软件。</li>
+<li><strong>模型数据</strong>：分析虽在本地，但结果会发给你的模型服务商。</li>
+</ul>
+<h2>十一、适合谁用？</h2>
+<ul>
+<li>安全研究、恶意样本分析、CTF 选手；</li>
+<li>想搞懂某个 Electron / Web 应用功能实现的前端、全栈开发者；</li>
+<li>做互操作、老软件/老游戏保存与重建的人；</li>
+<li>想让 Agent 帮忙排查自家二进制、崩溃转储的工程师。</li>
+</ul>
+<h2>十二、总结</h2>
+<p>REA 的本质，是把散落在 IDA、Ghidra、Hopper、JADX、浏览器调试协议里的逆向能力，用 MCP 统一成 Agent 可调用、结果可追溯的工具集。它最值得借鉴的不只是“能逆向”，而是“每个结论都有证据、不确定就写未知”的设计。半年 30 万 Star，说明“Agent 看懂没有源码的软件”这件事，大家是真的需要。</p>
+<p>顺带一提，这篇文章的资料检索和整理，我也是用 Grok Bot 月卡这类 AI 工具辅助完成的（https://momoai.czvip.cn），效率确实高不少。</p>
+<p><strong>参考</strong>：GitHub morluto/rea 的 README、CHANGELOG、DISCLAIMER、docs/architecture.mermaid；官网 rea.tools。</p>
+<footer>镜像自 CSDN @xianyu120 · 内容以原文为准</footer>
+</article></div></body></html>
